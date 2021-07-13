@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 from sklearn.svm import SVC
 from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import plot_confusion_matrix, plot_roc_curve, plot_precision_recall_curve
 from sklearn.metrics import precision_score, recall_score 
@@ -51,7 +52,7 @@ def prediction(model,feature_list):
    elif result[0] == 5:
       return 'containers'
    elif result[0] == 6:
-      return 'tabelware'
+      return 'tableware'
    else :
       return 'headlamps'
 
@@ -63,6 +64,7 @@ st.sidebar.title('Glass Type Prediction')
 if st.sidebar.checkbox('Show Raw Data'):
     st.subheader('Glass Type Dataset')
     st.dataframe(glass_df)
+
 st.sidebar.subheader('Visualisation Selector')
 selection = st.sidebar.multiselect('Select type of chart',('correlation heatmap','line chart','area chart','count plot','pie chart','box plot'))
 if 'line chart' in selection:
@@ -90,3 +92,49 @@ if 'box plot' in selection:
     select2 = st.sidebar.selectbox('Choose Column',['RI', 'Na', 'Mg', 'Al', 'Si', 'K', 'Ca', 'Ba', 'Fe', 'GlassType'])
     sns.boxplot(x = select2 , data = glass_df)
     st.pyplot()
+
+st.sidebar.subheader('Value Selector')
+ri = st.sidebar.slider('Refractive Index (RI)',float(glass_df['RI'].min()),float(glass_df['RI'].max()))
+na = st.sidebar.slider('Sodium (Na)',float(glass_df['Na'].min()),float(glass_df['Na'].max()))
+mg = st.sidebar.slider('Magnesium (Mg)',float(glass_df['Mg'].min()),float(glass_df['Mg'].max()))
+al = st.sidebar.slider('Aluminium (Al)',float(glass_df['Al'].min()),float(glass_df['Al'].max()))
+si = st.sidebar.slider('Silicon (Si)',float(glass_df['Si'].min()),float(glass_df['Si'].max()))
+k = st.sidebar.slider('Potassium (K)',float(glass_df['K'].min()),float(glass_df['K'].max()))
+ca = st.sidebar.slider('Calcum (Ca)',float(glass_df['Ca'].min()),float(glass_df['Ca'].max()))
+ba = st.sidebar.slider('Barium (Ba)',float(glass_df['Ba'].min()),float(glass_df['Ba'].max()))
+fe = st.sidebar.slider('Iron (Fe)',float(glass_df['Fe'].min()),float(glass_df['Fe'].max()))
+
+st.sidebar.subheader('Classifier Selector')
+clf = st.sidebar.selectbox('Classifier',('Random Forest Classifier','Logistic Regression','Support Vector Machine'))
+if clf == 'Support Vector Machine':
+    st.sidebar.subheader('Parameter Selctor')
+    ker = st.sidebar.radio('Kernel',('linear','rbf','poly'))
+    c = st.sidebar.number_input('C(Error Rate)',1,100,1)
+    gam = st.sidebar.number_input('Gamma',1,100,1)
+    if st.sidebar.button('Classify'):
+        st.subheader('Support Vector Machine')
+        svc_model = SVC(kernel = ker, C = c , gamma = gam)
+        svc_model.fit(X_train,y_train)
+        score = svc_model.score(X_train,y_train)
+        test_pred = svc_model.predict(X_test)
+        pred = prediction(svc_model,[[ri,na,mg,al,si,k,ca,ba,fe]])
+        st.write(f'Accuracy : {score}')
+        st.write(f'Glass Type : {pred}')
+        plot_confusion_matrix(svc_model,X_test,y_test)
+        st.pyplot()
+if clf == 'Random Forest Classifier':
+    st.sidebar.subheader('Parameter Selection')
+    n_est = st.sidebar.number_input('Decision Trees(n_estimators)',100,5000,step = 10)
+    m_depth = st.sidebar.number_input('Max Depth',1,100,1)
+    if st.sidebar.button('Classify'):
+        st.subheader('Random Forest Classifier')
+        rfc_model = RandomForestClassifier(n_estimators = n_est, max_depth = m_depth, n_jobs = -1)
+        rfc_model.fit(X_train,y_train)
+        score = rfc_model.score(X_train,y_train)
+        test_pred = rfc_model.predict(X_test)
+        pred = prediction(rfc_model,[[ri,na,mg,al,si,k,ca,ba,fe]])
+        st.write(f'Accuracy : {score}')
+        st.write(f'Glass Type : {pred}')
+        plot_confusion_matrix(rfc_model,X_test,y_test)
+        st.pyplot()
+if clf == 'Logistic Regression':
