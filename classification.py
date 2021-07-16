@@ -93,6 +93,7 @@ if 'box plot' in selection:
     sns.boxplot(x = select2 , data = glass_df)
     st.pyplot()
 
+st.sidebar.title('Custom Prediction')
 st.sidebar.subheader('Value Selector')
 ri = st.sidebar.slider('Refractive Index (RI)',float(glass_df['RI'].min()),float(glass_df['RI'].max()))
 na = st.sidebar.slider('Sodium (Na)',float(glass_df['Na'].min()),float(glass_df['Na'].max()))
@@ -145,6 +146,7 @@ if clf == 'Logistic Regression':
         st.subheader('Logistic Regression')
         lg_clf = LogisticRegression(C = c,max_iter = iterations)
         lg_clf.fit(X_train,y_train)
+        score = lg_clf.score(X_train,y_train)
         test_pred = lg_clf.predict(X_test)
         pred = prediction(lg_clf,[[ri,na,mg,al,si,k,ca,ba,fe]])
         st.write(f'Accuracy : {score}')
