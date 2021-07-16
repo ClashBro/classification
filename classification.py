@@ -138,3 +138,16 @@ if clf == 'Random Forest Classifier':
         plot_confusion_matrix(rfc_model,X_test,y_test)
         st.pyplot()
 if clf == 'Logistic Regression':
+    st.sidebar.subheader('Parameter Selection')
+    c = st.sidebar.number_input('C(ErrorRate)',1,100,1)
+    iterations = st.sidebar.number_input('Max Iteration',10,10000,step = 10)
+    if st.sidebar.button('Classify'):
+        st.subheader('Logistic Regression')
+        lg_clf = LogisticRegression(C = c,max_iter = iterations)
+        lg_clf.fit(X_train,y_train)
+        test_pred = lg_clf.predict(X_test)
+        pred = prediction(lg_clf,[[ri,na,mg,al,si,k,ca,ba,fe]])
+        st.write(f'Accuracy : {score}')
+        st.write(f'Glass Type : {pred}')
+        plot_confusion_matrix(lg_clf,X_test,y_test)
+        st.pyplot()
